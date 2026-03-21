@@ -81,8 +81,7 @@ export function InputForm() {
     setBusyBlocks((prev) => prev.filter((_, i) => i !== index));
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleSubmit() {
     setError(null);
 
     // Basic client-side guard — at least one task with a title and deadline
@@ -144,7 +143,7 @@ export function InputForm() {
   }
 
   return (
-    <form onSubmit={(e) => void handleSubmit(e)} className="space-y-10">
+    <form className="space-y-10">
       {/* Error banner — top of form so it's always visible */}
       {error ? (
         <div
@@ -274,7 +273,8 @@ export function InputForm() {
       {/* Submit */}
       <div className="space-y-3 border-t border-zinc-200 pt-6 dark:border-zinc-800">
         <button
-          type="submit"
+          type="button"
+          onClick={() => void handleSubmit()}
           disabled={loading || tasks.length === 0}
           className="inline-flex h-12 w-full items-center justify-center rounded-full bg-emerald-600 px-8 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
         >
