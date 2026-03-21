@@ -1,7 +1,6 @@
 "use client";
 
 import { Plus } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
 import type { CoachPlanRequest } from "@/types/api";
@@ -46,7 +45,6 @@ const addButtonClass =
   "inline-flex items-center gap-1.5 rounded-lg border border-dashed border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-600 transition hover:border-emerald-400 hover:text-emerald-700 dark:border-zinc-600 dark:text-zinc-400 dark:hover:border-emerald-500 dark:hover:text-emerald-400";
 
 export function InputForm() {
-  const router = useRouter();
   const errorRef = useRef<HTMLDivElement>(null);
 
   const [stressLevel, setStressLevel] = useState(5);
@@ -137,7 +135,7 @@ export function InputForm() {
 
       const data = (await res.json()) as CoachPlanResponse;
       sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      router.push("/results");
+      window.location.href = "/results";
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
     } finally {

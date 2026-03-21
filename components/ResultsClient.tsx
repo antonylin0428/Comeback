@@ -42,10 +42,10 @@ export function ResultsClient() {
           Generate a plan from the home page — we&apos;ll show it here.
         </p>
         <Link
-          href="/"
+          href="/plan"
           className="mt-6 inline-flex rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-emerald-700"
         >
-          Back to home
+          Build a plan
         </Link>
       </div>
     );
@@ -77,7 +77,7 @@ export function ResultsClient() {
 
       <div className="flex justify-center pb-8">
         <Link
-          href="/"
+          href="/plan"
           className="text-sm font-medium text-emerald-700 underline-offset-4 hover:underline dark:text-emerald-400"
         >
           ← Plan again
