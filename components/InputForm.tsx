@@ -2,7 +2,7 @@
 
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import type { CoachPlanRequest } from "@/types/api";
 import type { CoachPlanResponse } from "@/types/plan";
@@ -47,6 +47,7 @@ const addButtonClass =
 
 export function InputForm() {
   const router = useRouter();
+  const errorRef = useRef<HTMLDivElement>(null);
 
   const [stressLevel, setStressLevel] = useState(5);
   const [planningWindowDays, setPlanningWindowDays] = useState(7);
@@ -90,12 +91,14 @@ export function InputForm() {
     const incompleteTasks = tasks.filter((t) => !t.title.trim() || !t.deadline);
     if (incompleteTasks.length > 0) {
       setError("Each task needs a title and a deadline before submitting.");
+      setTimeout(() => errorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }), 50);
       return;
     }
 
     const incompleteBlocks = busyBlocks.filter((b) => !b.title.trim() || !b.start || !b.end);
     if (incompleteBlocks.length > 0) {
       setError("Each busy block needs a label, start time, and end time.");
+      setTimeout(() => errorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }), 50);
       return;
     }
 
@@ -144,6 +147,17 @@ export function InputForm() {
 
   return (
     <form onSubmit={(e) => void handleSubmit(e)} className="space-y-10">
+      {/* Error banner — top of form so it's always visible */}
+      {error ? (
+        <div
+          ref={errorRef}
+          className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300"
+          role="alert"
+        >
+          {error}
+        </div>
+      ) : null}
+
       {/* Student context */}
       <section className="space-y-4">
         <div>
@@ -261,12 +275,6 @@ export function InputForm() {
 
       {/* Submit */}
       <div className="space-y-3 border-t border-zinc-200 pt-6 dark:border-zinc-800">
-        {error ? (
-          <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300">
-            {error}
-          </p>
-        ) : null}
-
         <button
           type="submit"
           disabled={loading || tasks.length === 0}
