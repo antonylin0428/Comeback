@@ -76,6 +76,8 @@ export function runScheduler(input: NormalizedCoachInput, ai: AIPlanningResult):
   }));
 
   const hoursUsedPerDay = new Array(planningDays).fill(0);
+  // Track where the next block can start on each day to prevent overlaps
+  const dayNextSlot: (Date | null)[] = new Array(planningDays).fill(null);
   const unscheduledTaskIds = new Set<string>();
   const warnings: string[] = [];
   let overload = false;
@@ -92,7 +94,13 @@ export function runScheduler(input: NormalizedCoachInput, ai: AIPlanningResult):
       for (const window of free) {
         if (remaining <= MIN_CHUNK_HOURS / 2) break;
 
-        let slotStart = window.start;
+        // Start from where we last left off on this day, not the window start
+        const cursor = dayNextSlot[d];
+        let slotStart =
+          cursor && isBefore(window.start, cursor) ? cursor : window.start;
+
+        // If cursor is already past this window, skip it
+        if (!isBefore(slotStart, window.end)) continue;
 
         while (isBefore(slotStart, window.end) && remaining > MIN_CHUNK_HOURS / 2) {
           const roomInDay = maxPerDay - hoursUsedPerDay[d]!;
@@ -126,6 +134,7 @@ export function runScheduler(input: NormalizedCoachInput, ai: AIPlanningResult):
           hoursUsedPerDay[d] = (hoursUsedPerDay[d] ?? 0) + take;
           remaining -= take;
           slotStart = addBreakAfter(blockEnd);
+          dayNextSlot[d] = slotStart;
         }
       }
     }
