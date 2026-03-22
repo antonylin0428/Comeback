@@ -27,7 +27,50 @@ function defaultTask(): TaskDraft {
 }
 
 function defaultBlock(): BusyBlockDraft {
-  return { title: "", start: "", end: "" };
+  return { title: "", days: [], startTime: "", endTime: "" };
+}
+
+/**
+ * Expands recurring busy blocks into one BusyBlockInput per matching day
+ * across the planning window, so the backend scheduler can work with exact dates.
+ */
+function expandRecurringBlocks(
+  blocks: BusyBlockDraft[],
+  planningWindowDays: number,
+): CoachPlanRequest["busyBlocks"] {
+  const result: CoachPlanRequest["busyBlocks"] = [];
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  for (const block of blocks) {
+    if (!block.title.trim() || block.days.length === 0 || !block.startTime || !block.endTime) {
+      continue;
+    }
+    const [startH, startM] = block.startTime.split(":").map(Number) as [number, number];
+    const [endH, endM] = block.endTime.split(":").map(Number) as [number, number];
+
+    for (let i = 0; i < planningWindowDays; i++) {
+      const day = new Date(today);
+      day.setDate(today.getDate() + i);
+
+      if (!block.days.includes(day.getDay())) continue;
+
+      const start = new Date(day);
+      start.setHours(startH, startM, 0, 0);
+      const end = new Date(day);
+      end.setHours(endH, endM, 0, 0);
+
+      if (end <= start) continue;
+
+      result.push({
+        title: block.title.trim(),
+        start: start.toISOString(),
+        end: end.toISOString(),
+      });
+    }
+  }
+
+  return result;
 }
 
 const sectionHeadingClass =
@@ -92,9 +135,11 @@ export function InputForm() {
       return;
     }
 
-    const incompleteBlocks = busyBlocks.filter((b) => !b.title.trim() || !b.start || !b.end);
+    const incompleteBlocks = busyBlocks.filter(
+      (b) => b.title.trim() && (b.days.length === 0 || !b.startTime || !b.endTime),
+    );
     if (incompleteBlocks.length > 0) {
-      setError("Each busy block needs a label, start time, and end time.");
+      setError("Each busy block needs at least one day selected and a start and end time.");
       setTimeout(() => errorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }), 50);
       return;
     }
@@ -112,11 +157,7 @@ export function InputForm() {
         estimatedHours: t.estimatedHours,
         importance: t.importance,
       })),
-      busyBlocks: busyBlocks.map((b) => ({
-        title: b.title.trim(),
-        start: toIso(b.start),
-        end: toIso(b.end),
-      })),
+      busyBlocks: expandRecurringBlocks(busyBlocks, planningWindowDays),
     };
 
     setLoading(true);
