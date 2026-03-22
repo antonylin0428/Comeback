@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import type { CoachPlanResponse } from "@/types/plan";
 
 import { EmailDraftCard } from "./EmailDraftCard";
+import { ExportCalendarCard } from "./ExportCalendarCard";
 import { OverloadBanner } from "./OverloadBanner";
 import { PlanSummaryCard } from "./PlanSummaryCard";
 import { PriorityList } from "./PriorityList";
@@ -72,6 +73,8 @@ export function ResultsClient() {
       <PriorityList priorities={data.priorities} />
 
       <ResultsSchedule dailySchedule={data.dailySchedule} />
+
+      <ExportCalendarCard plan={data} />
 
       <EmailDraftCard emailDraft={data.emailDraft} />
 
