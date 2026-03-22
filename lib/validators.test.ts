@@ -10,6 +10,8 @@ function validBody() {
       stressLevel: 6,
       planningWindowDays: 7,
       maxHoursPerDay: 4,
+      workStartHour: 9,
+      workEndHour: 22,
     },
     tasks: [
       {

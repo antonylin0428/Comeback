@@ -42,6 +42,8 @@ export function normalizeCoachPlanInput(raw: CoachPlanRequest | CoachPlanRequest
     workStartHour: clamp(Math.round(raw.studentContext.workStartHour ?? DAY_START_HOUR), 0, 23),
     workEndHour: clamp(Math.round(raw.studentContext.workEndHour ?? DAY_END_HOUR), 1, 24),
     schedulingPreferences: raw.studentContext.schedulingPreferences?.trim() || undefined,
+    planningAnchorIso: raw.studentContext.planningAnchorIso?.trim() || undefined,
+    timeZone: raw.studentContext.timeZone?.trim() || undefined,
   };
 
   if (!Number.isFinite(studentContext.planningWindowDays) || studentContext.planningWindowDays < 1) {

@@ -19,6 +19,8 @@ const studentContextSchema = z
     workStartHour: z.number().min(0).max(23).int(),
     workEndHour: z.number().min(1).max(24).int(),
     schedulingPreferences: z.string().max(500).optional(),
+    planningAnchorIso: z.string().datetime({ offset: true }).optional(),
+    timeZone: z.string().min(1).max(120).optional(),
   })
   .refine((d) => d.workEndHour > d.workStartHour, {
     message: "workEndHour must be after workStartHour",

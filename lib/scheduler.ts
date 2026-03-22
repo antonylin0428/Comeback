@@ -10,15 +10,16 @@ import {
   clipIntervalToDay,
   eachPlanningDay,
   mergeOverlappingIntervals,
+  parseIsoDate,
   subtractFromInterval,
   type TimeInterval,
 } from "./time";
 
+/** `day` is the UTC instant for local midnight on that calendar day (or UTC midnight in legacy mode). */
 function workWindowForDay(day: Date, startHour: number, endHour: number): TimeInterval {
-  const base = startOfDay(day);
   return {
-    start: addHours(base, startHour),
-    end: addHours(base, endHour),
+    start: addHours(day, startHour),
+    end: addHours(day, endHour),
   };
 }
 
@@ -50,7 +51,15 @@ function hoursBetween(start: Date, end: Date): number {
   return (end.getTime() - start.getTime()) / (1000 * 60 * 60);
 }
 
-function dateKey(day: Date): string {
+function dateKey(day: Date, timeZone?: string): string {
+  if (timeZone) {
+    return new Intl.DateTimeFormat("en-CA", {
+      timeZone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(day);
+  }
   return startOfDay(day).toISOString().slice(0, 10);
 }
 
@@ -60,14 +69,20 @@ function dateKey(day: Date): string {
 export function runScheduler(input: NormalizedCoachInput, ai: AIPlanningResult): SchedulerResult {
   const planningDays = input.studentContext.planningWindowDays;
   const maxPerDay = input.studentContext.maxHoursPerDay;
-  const start = startOfDay(new Date());
-  const days = eachPlanningDay(start, planningDays);
+  const { planningAnchorIso, timeZone } = input.studentContext;
+  const useLocalAnchor = Boolean(planningAnchorIso);
+  const anchor = useLocalAnchor
+    ? parseIsoDate(planningAnchorIso!)
+    : startOfDay(new Date());
+  const days = eachPlanningDay(anchor, planningDays, {
+    anchorIsLocalMidnight: useLocalAnchor,
+  });
 
   const taskTitle = new Map(input.tasks.map((t) => [t.id, t.title]));
   const sortedChunks = [...ai.chunks].sort((a, b) => a.order - b.order);
 
   const daysOut: DailyScheduleDay[] = days.map((d) => ({
-    date: dateKey(d),
+    date: dateKey(d, timeZone),
     blocks: [] as ScheduledBlock[],
   }));
 

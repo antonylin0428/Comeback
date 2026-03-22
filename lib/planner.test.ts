@@ -12,6 +12,8 @@ function scenario(name: string, stress: number, hours: number[]) {
       stressLevel: stress,
       planningWindowDays: 7,
       maxHoursPerDay: 4,
+      workStartHour: 9,
+      workEndHour: 22,
     },
     tasks: hours.map((estimatedHours, i) => ({
       title: `${name} task ${i + 1}`,

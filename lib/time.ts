@@ -3,7 +3,6 @@ import {
   addHours,
   addMinutes,
   areIntervalsOverlapping,
-  endOfDay,
   isBefore,
   isEqual,
   max as maxDate,
@@ -72,18 +71,26 @@ export function subtractFromInterval(
   return pieces;
 }
 
+/**
+ * Clip an interval to a single planning day. `day` must be the UTC instant that marks the
+ * start of that calendar day for the student (local midnight when using a browser anchor).
+ */
 export function clipIntervalToDay(interval: TimeInterval, day: Date): TimeInterval | null {
-  const dayStart = startOfDay(day);
-  const dayEnd = endOfDay(day);
+  const dayStart = day;
+  const dayEnd = addHours(day, 24);
   const start = maxDate([interval.start, dayStart]);
   const end = minDate([interval.end, dayEnd]);
   if (!isBefore(start, end)) return null;
   return { start, end };
 }
 
-export function eachPlanningDay(start: Date, planningWindowDays: number): Date[] {
+export function eachPlanningDay(
+  start: Date,
+  planningWindowDays: number,
+  options?: { anchorIsLocalMidnight?: boolean },
+): Date[] {
   const days: Date[] = [];
-  const base = startOfDay(start);
+  const base = options?.anchorIsLocalMidnight ? start : startOfDay(start);
   for (let i = 0; i < planningWindowDays; i++) {
     days.push(addDays(base, i));
   }

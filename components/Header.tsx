@@ -11,7 +11,7 @@ export function Header() {
           </span>
           <div>
             <p className="text-sm font-semibold leading-none text-zinc-900 dark:text-zinc-50">
-              Comeback Coach
+              Comeback
             </p>
             <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
               Turn overwhelm into a plan you can actually follow

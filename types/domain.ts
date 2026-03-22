@@ -11,6 +11,8 @@ export interface NormalizedStudentContext {
   workStartHour: number;
   workEndHour: number;
   schedulingPreferences?: string;
+  planningAnchorIso?: string;
+  timeZone?: string;
 }
 
 export interface NormalizedTask {

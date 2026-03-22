@@ -153,6 +153,9 @@ export function InputForm() {
       return;
     }
 
+    const planningAnchor = new Date();
+    planningAnchor.setHours(0, 0, 0, 0);
+
     const payload: CoachPlanRequest = {
       studentContext: {
         stressLevel,
@@ -161,6 +164,8 @@ export function InputForm() {
         workStartHour,
         workEndHour,
         schedulingPreferences: schedulingPreferences.trim() || undefined,
+        planningAnchorIso: planningAnchor.toISOString(),
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       },
       tasks: tasks.map((t) => ({
         title: t.title.trim(),

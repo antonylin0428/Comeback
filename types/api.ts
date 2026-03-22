@@ -11,6 +11,10 @@ export interface StudentContextInput {
   workStartHour: number;
   workEndHour: number;
   schedulingPreferences?: string;
+  /** ISO-8601 instant of local midnight today (from the browser). Used so work hours apply in the user's timezone, not UTC on the server. */
+  planningAnchorIso?: string;
+  /** IANA timezone, e.g. America/Los_Angeles — used for calendar day labels. */
+  timeZone?: string;
 }
 
 export interface TaskInput {
