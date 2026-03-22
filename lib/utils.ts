@@ -2,6 +2,12 @@
  * Small shared helpers — sorting, formatting, defensive cleaning.
  */
 
+import { clsx, type ClassValue } from "clsx";
+
+export function cn(...inputs: ClassValue[]) {
+  return clsx(inputs);
+}
+
 export function sortByDeadline<T extends { deadline: Date }>(tasks: T[]): T[] {
   return [...tasks].sort((a, b) => a.deadline.getTime() - b.deadline.getTime());
 }
