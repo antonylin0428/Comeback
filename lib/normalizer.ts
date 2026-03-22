@@ -6,7 +6,12 @@ import type {
   NormalizedTask,
 } from "@/types/domain";
 
-import { DEFAULT_PLANNING_WINDOW_DAYS, MAX_PLANNING_WINDOW_DAYS } from "./constants";
+import {
+  DAY_END_HOUR,
+  DAY_START_HOUR,
+  DEFAULT_PLANNING_WINDOW_DAYS,
+  MAX_PLANNING_WINDOW_DAYS,
+} from "./constants";
 import { mergeOverlappingIntervals, parseIsoDate, type TimeInterval } from "./time";
 import { clamp, sortByDeadline } from "./utils";
 import type { CoachPlanRequestParsed } from "./validators";
@@ -34,6 +39,9 @@ export function normalizeCoachPlanInput(raw: CoachPlanRequest | CoachPlanRequest
       MAX_PLANNING_WINDOW_DAYS,
     ),
     maxHoursPerDay: raw.studentContext.maxHoursPerDay,
+    workStartHour: clamp(Math.round(raw.studentContext.workStartHour ?? DAY_START_HOUR), 0, 23),
+    workEndHour: clamp(Math.round(raw.studentContext.workEndHour ?? DAY_END_HOUR), 1, 24),
+    schedulingPreferences: raw.studentContext.schedulingPreferences?.trim() || undefined,
   };
 
   if (!Number.isFinite(studentContext.planningWindowDays) || studentContext.planningWindowDays < 1) {

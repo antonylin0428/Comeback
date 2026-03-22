@@ -8,6 +8,9 @@ export interface NormalizedStudentContext {
   stressLevel: number;
   planningWindowDays: number;
   maxHoursPerDay: number;
+  workStartHour: number;
+  workEndHour: number;
+  schedulingPreferences?: string;
 }
 
 export interface NormalizedTask {

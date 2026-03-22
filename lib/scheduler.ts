@@ -3,12 +3,7 @@ import { addHours, isBefore, startOfDay } from "date-fns";
 import type { AIPlanningResult, NormalizedCoachInput } from "@/types/domain";
 import type { DailyScheduleDay, SchedulerResult, ScheduledBlock } from "@/types/plan";
 
-import {
-  DAY_END_HOUR,
-  DAY_START_HOUR,
-  MAX_BLOCK_HOURS,
-  MIN_CHUNK_HOURS,
-} from "./constants";
+import { MAX_BLOCK_HOURS, MIN_CHUNK_HOURS } from "./constants";
 import {
   addBreakAfter,
   addHoursToDate,
@@ -19,11 +14,11 @@ import {
   type TimeInterval,
 } from "./time";
 
-function workWindowForDay(day: Date): TimeInterval {
+function workWindowForDay(day: Date, startHour: number, endHour: number): TimeInterval {
   const base = startOfDay(day);
   return {
-    start: addHours(base, DAY_START_HOUR),
-    end: addHours(base, DAY_END_HOUR),
+    start: addHours(base, startHour),
+    end: addHours(base, endHour),
   };
 }
 
@@ -37,7 +32,8 @@ function busyForDay(day: Date, input: NormalizedCoachInput): TimeInterval[] {
 }
 
 function freeWindowsForDay(day: Date, input: NormalizedCoachInput): TimeInterval[] {
-  const work = workWindowForDay(day);
+  const { workStartHour, workEndHour } = input.studentContext;
+  const work = workWindowForDay(day, workStartHour, workEndHour);
   const busy = busyForDay(day, input);
   let free: TimeInterval[] = [work];
   for (const b of busy) {

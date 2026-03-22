@@ -93,6 +93,9 @@ export function InputForm() {
   const [stressLevel, setStressLevel] = useState(5);
   const [planningWindowDays, setPlanningWindowDays] = useState(7);
   const [maxHoursPerDay, setMaxHoursPerDay] = useState(4);
+  const [workStartHour, setWorkStartHour] = useState(9);
+  const [workEndHour, setWorkEndHour] = useState(22);
+  const [schedulingPreferences, setSchedulingPreferences] = useState("");
 
   const [tasks, setTasks] = useState<TaskDraft[]>([defaultTask()]);
   const [busyBlocks, setBusyBlocks] = useState<BusyBlockDraft[]>([]);
@@ -144,11 +147,20 @@ export function InputForm() {
       return;
     }
 
+    if (workEndHour <= workStartHour) {
+      setError("Work end time must be after work start time.");
+      setTimeout(() => errorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }), 50);
+      return;
+    }
+
     const payload: CoachPlanRequest = {
       studentContext: {
         stressLevel,
         planningWindowDays,
         maxHoursPerDay,
+        workStartHour,
+        workEndHour,
+        schedulingPreferences: schedulingPreferences.trim() || undefined,
       },
       tasks: tasks.map((t) => ({
         title: t.title.trim(),
@@ -246,6 +258,61 @@ export function InputForm() {
               className={`${inputClass} mt-1`}
             />
           </div>
+        </div>
+
+        {/* Work window */}
+        <div className="space-y-1.5">
+          <p className={labelClass}>Daily work window</p>
+          <p className="text-xs text-zinc-400 dark:text-zinc-500">
+            The scheduler will only place sessions inside this window.
+          </p>
+          <div className="flex items-center gap-3">
+            <div className="flex flex-1 flex-col gap-1">
+              <label className={labelClass}>Start</label>
+              <select
+                value={workStartHour}
+                onChange={(e) => setWorkStartHour(Number(e.target.value))}
+                className={`${inputClass}`}
+              >
+                {Array.from({ length: 24 }, (_, h) => (
+                  <option key={h} value={h}>
+                    {h === 0 ? "12:00 AM" : h < 12 ? `${h}:00 AM` : h === 12 ? "12:00 PM" : `${h - 12}:00 PM`}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <span className="mt-4 text-sm text-zinc-400">to</span>
+            <div className="flex flex-1 flex-col gap-1">
+              <label className={labelClass}>End</label>
+              <select
+                value={workEndHour}
+                onChange={(e) => setWorkEndHour(Number(e.target.value))}
+                className={`${inputClass}`}
+              >
+                {Array.from({ length: 24 }, (_, h) => h + 1).map((h) => (
+                  <option key={h} value={h}>
+                    {h === 24 ? "12:00 AM (midnight)" : h < 12 ? `${h}:00 AM` : h === 12 ? "12:00 PM" : `${h - 12}:00 PM`}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Scheduling preferences */}
+        <div>
+          <label className={labelClass}>Scheduling preferences (optional)</label>
+          <p className="mb-1.5 text-xs text-zinc-400 dark:text-zinc-500">
+            Tell the AI how you like to work — e.g. &quot;I prefer to knock out short tasks first&quot; or &quot;I work best in long uninterrupted blocks.&quot;
+          </p>
+          <textarea
+            rows={2}
+            maxLength={500}
+            placeholder="e.g. I like to get short, tedious tasks done first before tackling big ones."
+            value={schedulingPreferences}
+            onChange={(e) => setSchedulingPreferences(e.target.value)}
+            className={`${inputClass} resize-none`}
+          />
         </div>
       </section>
 

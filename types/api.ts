@@ -8,6 +8,9 @@ export interface StudentContextInput {
   stressLevel: number;
   planningWindowDays: number;
   maxHoursPerDay: number;
+  workStartHour: number;
+  workEndHour: number;
+  schedulingPreferences?: string;
 }
 
 export interface TaskInput {

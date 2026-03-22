@@ -8,14 +8,22 @@ import {
 
 const importanceSchema = z.enum(["low", "medium", "high"]);
 
-const studentContextSchema = z.object({
-  stressLevel: z.number().min(1).max(10),
-  planningWindowDays: z
-    .number()
-    .min(MIN_PLANNING_WINDOW_DAYS)
-    .max(MAX_PLANNING_WINDOW_DAYS),
-  maxHoursPerDay: z.number().min(0.5).max(MAX_HOURS_PER_DAY_CAP),
-});
+const studentContextSchema = z
+  .object({
+    stressLevel: z.number().min(1).max(10),
+    planningWindowDays: z
+      .number()
+      .min(MIN_PLANNING_WINDOW_DAYS)
+      .max(MAX_PLANNING_WINDOW_DAYS),
+    maxHoursPerDay: z.number().min(0.5).max(MAX_HOURS_PER_DAY_CAP),
+    workStartHour: z.number().min(0).max(23).int(),
+    workEndHour: z.number().min(1).max(24).int(),
+    schedulingPreferences: z.string().max(500).optional(),
+  })
+  .refine((d) => d.workEndHour > d.workStartHour, {
+    message: "workEndHour must be after workStartHour",
+    path: ["workEndHour"],
+  });
 
 const taskSchema = z.object({
   title: z.string().min(1).max(500),
