@@ -87,8 +87,11 @@ export function runScheduler(input: NormalizedCoachInput, ai: AIPlanningResult):
   }));
 
   const hoursUsedPerDay = new Array(planningDays).fill(0);
-  // Track where the next block can start on each day to prevent overlaps
+  // Track where the next block can start on each day to prevent overlaps.
+  // Day 0 starts at the current time so we never place blocks in the past.
+  const now = new Date();
   const dayNextSlot: (Date | null)[] = new Array(planningDays).fill(null);
+  dayNextSlot[0] = now;
   const unscheduledTaskIds = new Set<string>();
   const warnings: string[] = [];
   let overload = false;
